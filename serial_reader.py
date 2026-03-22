@@ -50,6 +50,9 @@ class SerialReader:
 
     def _read_loop(self):
         cfg = load_config()
+        print(f"\n{'='*50}")
+        print(f"[SERIAL] Dang mo cong {cfg['serial_port']} @ {cfg['baud_rate']} baud (8N1)")
+        print(f"{'='*50}")
         while self._running:
             try:
                 self._port = serial.Serial(
@@ -62,28 +65,43 @@ class SerialReader:
                 )
                 self._connected = True
                 self.socketio.emit("serial_status", {"connected": True})
+                print(f"[SERIAL] [OK] Da ket noi thanh cong: {cfg['serial_port']}")
+                print(f"[SERIAL] Dang lang nghe du lieu...\n")
 
                 while self._running:
                     line = self._port.readline().decode("utf-8", errors="ignore").strip()
                     if line:
+                        print(f"[SERIAL RAW] >>> {line}")
                         data = self._parse_line(line)
                         if data:
                             self._last_data = data
                             insert_reading(data)
                             self.socketio.emit("sensor_data", data)
+                            print(f"[SERIAL OK]  T={data['temperature']}C  "
+                                  f"H={data['humidity']}%  "
+                                  f"P={data['pressure']}hPa  "
+                                  f"PM1={data['pm1_0']}  "
+                                  f"PM2.5={data['pm2_5']}  "
+                                  f"PM10={data['pm10']}")
+                        else:
+                            print(f"[SERIAL WARN] Khong parse duoc dong tren")
 
-            except serial.SerialException:
+            except serial.SerialException as e:
                 self._connected = False
                 self.socketio.emit("serial_status", {"connected": False})
+                print(f"[SERIAL ERR] Loi Serial: {e}")
                 if self._running:
+                    print(f"[SERIAL] Thu lai sau 3 giay...")
                     time.sleep(3)
-            except Exception:
+            except Exception as e:
                 self._connected = False
+                print(f"[SERIAL ERR] Loi khong xac dinh: {e}")
                 if self._running:
                     time.sleep(3)
             finally:
                 if self._port and self._port.is_open:
                     self._port.close()
+                    print(f"[SERIAL] Da dong cong")
 
     @staticmethod
     def _parse_line(line):
