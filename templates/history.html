@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Lịch sử — Air Monitor{% endblock %}
+{% block page_title %}Lịch sử dữ liệu{% endblock %}
+{% block page_subtitle %}Xem lại dữ liệu theo khoảng thời gian{% endblock %}
+
+{% block content %}
+<div class="history-filters">
+    <div class="filter-group">
+        <label for="filter-start">Từ ngày</label>
+        <input type="datetime-local" id="filter-start" class="form-input">
+    </div>
+    <div class="filter-group">
+        <label for="filter-end">Đến ngày</label>
+        <input type="datetime-local" id="filter-end" class="form-input">
+    </div>
+    <button class="btn btn-primary" id="btn-filter">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Tìm kiếm
+    </button>
+    <button class="btn btn-outline" id="btn-export">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Xuất CSV
+    </button>
+</div>
+
+<div class="chart-section">
+    <div class="chart-grid">
+        <div class="chart-box" id="history-chart-box-env">
+            <h3>Nhiệt độ, Độ ẩm &amp; Áp suất</h3>
+            <canvas id="history-chart-env"></canvas>
+        </div>
+        <div class="chart-box" id="history-chart-box-pm">
+            <h3>Bụi mịn (PM)</h3>
+            <canvas id="history-chart-pm"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="data-table-section">
+    <div class="section-header">
+        <h2>Dữ liệu chi tiết</h2>
+        <span class="result-count" id="result-count">0 bản ghi</span>
+    </div>
+    <div class="table-wrapper">
+        <table class="data-table" id="data-table">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Nhiệt độ (°C)</th>
+                    <th>Độ ẩm (%)</th>
+                    <th>Áp suất (hPa)</th>
+                    <th>PM1.0</th>
+                    <th>PM2.5</th>
+                    <th>PM10</th>
+                </tr>
+            </thead>
+            <tbody id="data-body"></tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}
